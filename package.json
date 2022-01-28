@@ -1,0 +1,42 @@
+{
+  "name": "DDAOallocV01",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "compile": "truffle compile",
+    "migrate-rinkeby": "truffle migrate --network rinkeby --f 2 -to 2 --compile-all --reset",
+    "verify-rinkeby": "truffle run verify DDAOallocV01 --network rinkeby",
+    "migrate-development": "truffle migrate --network development --f 2 -to 2 --compile-all --reset",
+    "migrate-kovan": "truffle migrate --network kovan --f 2 -to 2 --compile-all --reset",
+    "verify-kovan": "truffle run verify DDAOallocV01 --network kovan",
+    "migrate-ropsten": "truffle migrate --network ropsten --f 2 -to 2 --compile-all --reset",
+    "verify-ropsten": "truffle run verify DDAOallocV01 --network ropsten",
+    "test": "npx hardhat test",
+    "test-cover": "npx hardhat coverage --solcoverjs ./.solcover.js",
+    "prettier": "prettier --write 'contracts/**/*.sol'",
+    "lint": "prettier --list-different 'contracts/**/*.sol'"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.4",
+    "@nomiclabs/hardhat-etherscan": "^3.0.0",
+    "@nomiclabs/hardhat-truffle5": "^2.0.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.2",
+    "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@openzeppelin/contracts": "^4.4.2",
+    "@truffle/hdwallet-provider": "^2.0.1",
+    "@types/mocha": "^9.1.0",
+    "chai": "^4.3.6",
+    "dotenv": "^14.3.2",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "ethers": "^5.5.3",
+    "hardhat": "^2.8.3",
+    "prettier": "^2.5.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "solidity-coverage": "^0.7.18",
+    "truffle": "^5.4.30",
+    "truffle-assertions": "^0.9.2",
+    "truffle-plugin-verify": "^0.5.21"
+  }
+}
