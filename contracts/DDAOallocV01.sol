@@ -81,7 +81,7 @@ contract DDAOallocV01 is AccessControl, Ownable
         }
         function AdminDel(address account) public virtual onlyAdmin
         {
-                require(IsAdmin(account),'Account not ADMIN'); // <--- unnecessary as cover by modifier onlyAdmin
+                // require(IsAdmin(account),'Account not ADMIN'); // <--- unnecessary as cover by modifier onlyAdmin
                 require(_msgSender()!=account,'You can`t remove yourself');
                 revokeRole(DEFAULT_ADMIN_ROLE, account);
                 emit adminModify('Admin deleted',account);

@@ -3,6 +3,11 @@ const truffleAssert = require('truffle-assertions');
 
 const bn1e6 = ethers.BigNumber.from((10**6).toString());
 const ZERRO = '0x0000000000000000000000000000000000000000';
+const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
+const DEFAULT_TOKEN_ADDR = '0x753f470F3a283A8e99e5dacf9dD0eDf7F64a9F80';
+const LEVEL_MIN_1 = 50;
+const LEVEL_MIN_2 = 100;
+const LEVEL_MIN_3 = 1000;
 
 let owner;
 let payer1;
@@ -44,6 +49,18 @@ describe("DDAOallocV01", function () {
 
         usdcTest = await ERC20.deploy('Dev USDC (DEVUSDC)', 'USDC-Test', 6);
         await usdcTest.mint(owner.address, '10000000000000');
+    })
+
+    describe("constructor", function() {
+        it("Should set default admin role", async function() {
+            expect(await ddaoAllocV01.hasRole(DEFAULT_ADMIN_ROLE, owner.address)).to.be.equal(true);
+        });
+        it("Should be set TokenAddr and LevelMin 1, 2, 3", async function() {
+            expect(await ddaoAllocV01.TokenAddr()).to.be.equal(DEFAULT_TOKEN_ADDR);
+            expect((await ddaoAllocV01.LevelMin(1)).toNumber()).to.be.equal(LEVEL_MIN_1);
+            expect((await ddaoAllocV01.LevelMin(2)).toNumber()).to.be.equal(LEVEL_MIN_2);
+            expect((await ddaoAllocV01.LevelMin(3)).toNumber()).to.be.equal(LEVEL_MIN_3);
+        });
     })
 
     describe("IsAdmin", function() {
@@ -116,11 +133,16 @@ describe("DDAOallocV01", function () {
     })
 
     describe("TokenInfo", function() {
-        it("Should return static token info", async function() {
+        it("Should return token info", async function() {
             const addr = await ddaoAllocV01.TokenAddr();
             await ddaoAllocV01.TokenAddrSet(usdcTest.address);
             const info = await ddaoAllocV01.TokenInfo();
-            expect(info[0].addr).to.not.equal(addr);
+
+            expect(info[0]).to.not.equal(addr);
+            expect(info[1]).to.be.equal(6);
+            expect(info[2]).to.be.equal('Dev USDC (DEVUSDC)');
+            expect(info[3]).to.be.equal('USDC-Test');
+            expect(info[4].toString()).to.be.equal('10000000000000');
         })
     })
 
@@ -129,8 +151,15 @@ describe("DDAOallocV01", function () {
             await truffleAssert.reverts(ddaoAllocV01.connect(payer1).SaleModify(0, 'Sale', 'Self modified sale', ZERRO, 0), "Access for Admin's only");
         })
         it("Should be modified", async function() {
-            const id = (await ddaoAllocV01.SaleMax()).toNumber();
             await ddaoAllocV01.SaleModify(1, 'Sale', 'Self modified sale', ZERRO, 0);
+            expect((await ddaoAllocV01.SaleMax()).toNumber()).to.be.equal(1);
+        })
+        it("Should be equal id as SaleMax less than id", async function() {
+            const id = (await ddaoAllocV01.SaleMax()).toNumber();
+            await ddaoAllocV01.SaleModify(1, 'test', 'commtents', payer3.address, 0);
+            expect((await ddaoAllocV01.SaleMax()).toNumber()).to.be.equal(1);
+            
+            await ddaoAllocV01.SaleModify(0, 'test', 'commtents', payer3.address, 0);
             expect((await ddaoAllocV01.SaleMax()).toNumber()).to.be.equal(1);
         })
     })
@@ -290,6 +319,23 @@ describe("DDAOallocV01", function () {
             
             const balanceOfAfter = await usdcTest.balanceOf(payer1.address);
             expect(balanceOfAfter.toNumber()).to.be.equal(balanceOfBefore.sub(amount).toNumber());
+        })
+
+        it("Should be participated in 3 levels of sale", async function() {
+            await preparePayer1ToAllocate();
+            const saleID = 0;
+            await ddaoAllocV01Inst.SaleModify(saleID, 'Sale', 'DDAO Selling', payer3.address, 0);
+            await ddaoAllocV01Inst.SaleDisable(saleID, false);
+
+            const minAmountLevel1 = ethers.BigNumber.from(50).mul(bn1e6);
+            const minAmountLevel2 = ethers.BigNumber.from(100).mul(bn1e6);
+            const minAmountLevel3 = ethers.BigNumber.from(1000).mul(bn1e6);
+
+            await ddaoAllocV01.connect(payer1).Allocate(saleID, 1, payer1.address, minAmountLevel1);
+            await ddaoAllocV01.connect(payer1).Allocate(saleID, 2, payer1.address, minAmountLevel2);
+            await ddaoAllocV01.connect(payer1).Allocate(saleID, 3, payer1.address, minAmountLevel3);
+
+            expect((await ddaoAllocV01.BuyerCount(payer1.address)).toNumber()).to.be.equal(3);
         })
 
         it("Sould be add event after sale", async function() {
