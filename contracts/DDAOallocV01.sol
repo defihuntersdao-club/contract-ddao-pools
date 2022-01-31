@@ -55,9 +55,9 @@ contract DDAOallocV01 is AccessControl, Ownable
 		// DevUSDC
 		TokenAddr = 0x753f470F3a283A8e99e5dacf9dD0eDf7F64a9F80;
 
-		LevelMin[1] = 50;
-		LevelMin[2] = 100;
-		LevelMin[3] = 1000;
+		LevelMin[1] = 300;
+		LevelMin[2] = 3000;
+		LevelMin[3] = 5000;
 	
 
 	}
