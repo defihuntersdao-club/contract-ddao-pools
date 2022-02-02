@@ -5,9 +5,9 @@ const bn1e6 = ethers.BigNumber.from((10**6).toString());
 const ZERRO = '0x0000000000000000000000000000000000000000';
 const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
 const DEFAULT_TOKEN_ADDR = '0x753f470F3a283A8e99e5dacf9dD0eDf7F64a9F80';
-const LEVEL_MIN_1 = 50;
-const LEVEL_MIN_2 = 100;
-const LEVEL_MIN_3 = 1000;
+const LEVEL_MIN_1 = 300;
+const LEVEL_MIN_2 = 3000;
+const LEVEL_MIN_3 = 5000;
 
 let owner;
 let payer1;
@@ -106,6 +106,9 @@ describe("DDAOallocV01", function () {
             truffleAssert.eventEmitted(result, 'adminModify', (ev) => {
                 return ev.txt === 'Admin deleted' && ev.addr === payer1.address
             });
+        })
+        it("Should be reverted as user is not admin", async function() {
+            await truffleAssert.reverts(ddaoAllocV01.AdminDel(payer1.address), "Account not ADMIN");
         })
     })
 
@@ -327,9 +330,9 @@ describe("DDAOallocV01", function () {
             await ddaoAllocV01Inst.SaleModify(saleID, 'Sale', 'DDAO Selling', payer3.address, 0);
             await ddaoAllocV01Inst.SaleDisable(saleID, false);
 
-            const minAmountLevel1 = ethers.BigNumber.from(50).mul(bn1e6);
-            const minAmountLevel2 = ethers.BigNumber.from(100).mul(bn1e6);
-            const minAmountLevel3 = ethers.BigNumber.from(1000).mul(bn1e6);
+            const minAmountLevel1 = ethers.BigNumber.from(300).mul(bn1e6);
+            const minAmountLevel2 = ethers.BigNumber.from(3000).mul(bn1e6);
+            const minAmountLevel3 = ethers.BigNumber.from(5000).mul(bn1e6);
 
             await ddaoAllocV01.connect(payer1).Allocate(saleID, 1, payer1.address, minAmountLevel1);
             await ddaoAllocV01.connect(payer1).Allocate(saleID, 2, payer1.address, minAmountLevel2);
